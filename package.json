@@ -1,0 +1,27 @@
+{
+  "name": "yt-backend",
+  "version": "1.0.0",
+  "description": "A YouTube clone backend designed to support core functionalities: user management, video uploading/processing, video streaming, interactions (likes, comments, subscriptions), search, and real-time notifications. The system must be highly scalable, fault-tolerant, and capable of handling large media files and high concurrent traffic.",
+  "license": "ISC",
+  "author": "Aakash",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server.js",
+    "dev": "nodemon server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "cloudinary": "^1.41.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "firebase-admin": "^13.6.1",
+    "mongoose": "^9.2.1",
+    "multer": "^2.0.2",
+    "multer-storage-cloudinary": "^4.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}
