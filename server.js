@@ -28,6 +28,6 @@ app.use("/api/subscriptions", subscriptionRoutes);
 app.use("/api/channel", channelRoutes);
 app.use("/api/history", historyRoutes);
 
-app.listen(process.env.PORT, "0.0.0.0", () =>
+app.listen(process.env.PORT, () =>
   console.log("Server running on", process.env.PORT)
 );
