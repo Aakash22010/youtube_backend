@@ -195,6 +195,26 @@ router.get("/trending/list", async (req, res) => {
   }
 });
 
+// GET My Liked Videos
+router.get("/liked/me", verifyToken, async (req, res) => {
+  try {
+    const currentUser = await User.findOne({ uid: req.user.uid });
+
+    const videos = await Video.find({
+      likes: currentUser._id,
+      visibility: "public",
+    })
+      .populate("owner", "name avatar")
+      .sort({ createdAt: -1 });
+
+    res.json(videos);
+
+  } catch (err) {
+    console.error("Liked videos error:", err);
+    res.status(500).json({ message: "Liked videos error" });
+  }
+});
+
 /* ============================= */
 /*         UNIQUE VIEW           */
 /* ============================= */
