@@ -180,6 +180,21 @@ router.get("/categories/list", async (req, res) => {
   }
 });
 
+// GET Trending Videos
+router.get("/trending/list", async (req, res) => {
+  try {
+    const videos = await Video.find({ visibility: "public" })
+      .populate("owner", "name avatar")
+      .sort({ views: -1 })
+      .limit(20);
+
+    res.json(videos);
+  } catch (err) {
+    console.error("Trending error:", err);
+    res.status(500).json({ message: "Trending error" });
+  }
+});
+
 /* ============================= */
 /*         UNIQUE VIEW           */
 /* ============================= */
