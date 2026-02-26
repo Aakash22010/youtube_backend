@@ -73,6 +73,48 @@ router.put("/me", verifyToken, upload.single("avatar"), async (req, res) => {
   }
 });
 
+router.post("/channel/create", verifyToken, async (req, res) => {
+  try {
+    const { name, bio } = req.body;
+
+    const user = await User.findOne({ uid: req.user.uid });
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.name = name || user.name;
+    user.bio = bio || user.bio;
+
+    await user.save();
+
+    res.json(user);
+
+  } catch (err) {
+    console.error("Channel create error:", err);
+    res.status(500).json({ message: "Channel create error" });
+  }
+});
+
+router.put("/channel/edit", verifyToken, async (req, res) => {
+  try {
+    const { name, bio } = req.body;
+
+    const user = await User.findOne({ uid: req.user.uid });
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.name = name;
+    user.bio = bio;
+
+    await user.save();
+
+    res.json(user);
+
+  } catch (err) {
+    console.error("Channel update error:", err);
+    res.status(500).json({ message: "Channel update error" });
+  }
+});
+
 // =============================
 // CHANNEL ANALYTICS (SAFE)
 // =============================
