@@ -115,6 +115,26 @@ router.put("/channel/edit", verifyToken, async (req, res) => {
   }
 });
 
+router.get("/dashboard/stats", verifyToken, async (req, res) => {
+  try {
+    const user = await User.findOne({ uid: req.user.uid });
+
+    const totalVideos = await Video.countDocuments({ owner: user._id });
+    const totalViewsAgg = await Video.aggregate([
+      { $match: { owner: user._id } },
+      { $group: { _id: null, total: { $sum: "$views" } } },
+    ]);
+
+    res.json({
+      totalVideos,
+      totalSubscribers: user.subscribers.length,
+      totalViews: totalViewsAgg[0]?.total || 0,
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Dashboard stats error" });
+  }
+});
+
 // =============================
 // CHANNEL ANALYTICS (SAFE)
 // =============================
