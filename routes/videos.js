@@ -42,7 +42,6 @@ router.post(
 
       const videoPath = req.files.video[0].path;
       const thumbnailPath = req.files.thumbnail[0].path;
-
       const videoUpload = await cloudinary.uploader.upload(videoPath, {
         resource_type: "video",
         folder: "youtube-clone/videos",
@@ -184,7 +183,7 @@ router.get("/categories/list", async (req, res) => {
 router.get("/trending/list", async (req, res) => {
   try {
     const videos = await Video.find({ visibility: "public" })
-      .populate("owner", "name avatar")
+      .populate("channel", "name avatar")
       .sort({ views: -1 })
       .limit(20);
 
