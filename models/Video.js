@@ -7,9 +7,9 @@ const videoSchema = mongoose.Schema(
     videoUrl: { type: String, required: true },
     thumbnailUrl: { type: String, required: true },
 
-    owner: {
+    channel: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Channel",
       required: true,
     },
 
