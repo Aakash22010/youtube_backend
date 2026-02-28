@@ -23,7 +23,7 @@ router.get("/:id", async (req, res) => {
       owner: req.params.id,
       visibility: "public",
     })
-      .populate("owner", "name avatar")
+      .populate("channel", "name avatar")
       .sort({ createdAt: -1 });
 
     res.json({

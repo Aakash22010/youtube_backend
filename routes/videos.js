@@ -69,7 +69,7 @@ router.post(
         tags: req.body.tags ? req.body.tags.split(",") : [],
       });
 
-      const populated = await newVideo.populate("owner", "name avatar");
+      const populated = await newVideo.populate("channel", "name avatar");
 
       res.json(populated);
 
@@ -97,7 +97,7 @@ router.get("/", async (req, res) => {
     }
 
     const videos = await Video.find(filter)
-      .populate("owner", "name avatar")
+      .populate("channel", "name avatar")
       .sort({ createdAt: -1 });
 
     res.json(videos);
@@ -113,7 +113,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const video = await Video.findById(req.params.id)
-      .populate("owner", "name avatar");
+      .populate("channel", "name avatar");
 
     res.json(video);
   } catch (err) {
@@ -203,7 +203,7 @@ router.get("/liked/me", verifyToken, async (req, res) => {
       likes: currentUser._id,
       visibility: "public",
     })
-      .populate("owner", "name avatar")
+      .populate("channel", "name avatar")
       .sort({ createdAt: -1 });
 
     res.json(videos);

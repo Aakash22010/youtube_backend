@@ -88,7 +88,7 @@ router.get("/feed/me", verifyToken, async (req, res) => {
       owner: { $in: currentUser.subscriptions },
       visibility: "public",
     })
-      .populate("owner", "name avatar")
+      .populate("channel", "name avatar")
       .sort({ createdAt: -1 });
 
     res.json(videos);
