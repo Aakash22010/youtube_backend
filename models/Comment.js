@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
 
-const commentSchema = mongoose.Schema(
+const commentSchema = new mongoose.Schema(
   {
-    video: { type: mongoose.Schema.Types.ObjectId, ref: "Video" },
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    text: String,
+    video: { type: mongoose.Schema.Types.ObjectId, ref: "Video", required: true },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    text: { type: String, required: true },
     parent: { type: mongoose.Schema.Types.ObjectId, ref: "Comment", default: null },
-    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }]
   },
   { timestamps: true }
 );

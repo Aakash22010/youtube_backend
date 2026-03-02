@@ -9,11 +9,14 @@ const subscriptionSchema = new mongoose.Schema(
     },
     channel: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Channel",
       required: true,
     },
   },
   { timestamps: true }
 );
+
+// Prevent duplicate subscriptions
+subscriptionSchema.index({ subscriber: 1, channel: 1 }, { unique: true });
 
 export default mongoose.model("Subscription", subscriptionSchema);

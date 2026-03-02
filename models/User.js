@@ -1,21 +1,13 @@
 import mongoose from "mongoose";
 
-const userSchema = mongoose.Schema(
+const userSchema = new mongoose.Schema(
   {
-    uid: { type: String, required: true, unique: true },
-    name: String,
-    email: String,
-    avatar: String,
-    bio: String,
-    role: { type: String, default: "user" },
-
-    subscribers: [
-      { type: mongoose.Schema.Types.ObjectId, ref: "User" }
-    ],
-
-    subscriptions: [
-      { type: mongoose.Schema.Types.ObjectId, ref: "User" }
-    ]
+    uid: { type: String, required: true, unique: true, index: true },
+    name: { type: String, trim: true },
+    email: { type: String, trim: true },
+    avatar: { type: String, default: "" },
+    bio: { type: String, default: "" },
+    role: { type: String, default: "user" }
   },
   { timestamps: true }
 );

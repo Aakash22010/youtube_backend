@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
 
-const videoSchema = mongoose.Schema(
+const videoSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
-    description: String,
+    description: { type: String, default: "" },
+
     videoUrl: { type: String, required: true },
     thumbnailUrl: { type: String, required: true },
 
@@ -11,21 +12,18 @@ const videoSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Channel",
       required: true,
+      index: true
     },
 
     tags: [String],
     category: String,
-
     visibility: { type: String, default: "public" },
-
     views: { type: Number, default: 0 },
 
-    likes: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
+    likes: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    }]
   },
   { timestamps: true }
 );

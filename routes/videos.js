@@ -29,56 +29,49 @@ router.post(
   ]),
   async (req, res) => {
     try {
-      console.log("REQ BODY:", req.body); // debugging
-
       if (!req.files?.video || !req.files?.thumbnail) {
         return res.status(400).json({ message: "Files missing" });
       }
 
       const dbUser = await User.findOne({ uid: req.user.uid });
-      if (!dbUser) {
-        return res.status(401).json({ message: "User not found" });
-      }
+      if (!dbUser) return res.status(401).json({ message: "User not found" });
 
-      const videoPath = req.files.video[0].path;
-      const thumbnailPath = req.files.thumbnail[0].path;
-      const videoUpload = await cloudinary.uploader.upload(videoPath, {
-        resource_type: "video",
-        folder: "youtube-clone/videos",
-      });
+      const channel = await Channel.findOne({ owner: dbUser._id });
+      if (!channel)
+        return res.status(400).json({ message: "Create a channel first" });
 
-      const thumbnailUpload = await cloudinary.uploader.upload(
-        thumbnailPath,
-        {
-          resource_type: "image",
-          folder: "youtube-clone/thumbnails",
-        }
+      const videoUpload = await cloudinary.uploader.upload(
+        req.files.video[0].path,
+        { resource_type: "video", folder: "youtube-clone/videos" }
       );
 
-      const categoryValue = req.body.category
-        ? req.body.category.trim()
-        : null;
+      const thumbnailUpload = await cloudinary.uploader.upload(
+        req.files.thumbnail[0].path,
+        { resource_type: "image", folder: "youtube-clone/thumbnails" }
+      );
 
       const newVideo = await Video.create({
         title: req.body.title,
         description: req.body.description,
-        category: categoryValue, // ← THIS LINE FIXES IT
-        owner: dbUser._id,
+        category: req.body.category?.trim() || null,
+        channel: channel._id,
         videoUrl: videoUpload.secure_url,
         thumbnailUrl: thumbnailUpload.secure_url,
         tags: req.body.tags ? req.body.tags.split(",") : [],
       });
 
-      const populated = await newVideo.populate("channel", "name avatar");
+      const populated = await newVideo.populate({
+        path: "channel",
+        populate: {
+          path: "owner",
+          select: "name avatar"
+        }
+      });
 
       res.json(populated);
 
     } catch (error) {
-      console.error("UPLOAD ERROR:", error);
-      res.status(500).json({
-        message: "Upload failed",
-        error: error.message,
-      });
+      res.status(500).json({ message: "Upload failed", error: error.message });
     }
   }
 );

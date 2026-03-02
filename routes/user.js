@@ -118,16 +118,32 @@ router.put("/channel/edit", verifyToken, async (req, res) => {
 router.get("/dashboard/stats", verifyToken, async (req, res) => {
   try {
     const user = await User.findOne({ uid: req.user.uid });
+    const channel = await Channel.findOne({ owner: user._id });
 
-    const totalVideos = await Video.countDocuments({ owner: user._id });
+    if (!channel) {
+      return res.json({
+        totalVideos: 0,
+        totalSubscribers: 0,
+        totalViews: 0,
+      });
+    }
+
+    const totalVideos = await Video.countDocuments({
+      channel: channel._id,
+    });
+
     const totalViewsAgg = await Video.aggregate([
-      { $match: { owner: user._id } },
+      { $match: { channel: channel._id } },
       { $group: { _id: null, total: { $sum: "$views" } } },
     ]);
 
+    const totalSubscribers = await Subscription.countDocuments({
+      channel: channel._id,
+    });
+
     res.json({
       totalVideos,
-      totalSubscribers: user.subscribers.length,
+      totalSubscribers,
       totalViews: totalViewsAgg[0]?.total || 0,
     });
   } catch (err) {
@@ -141,11 +157,13 @@ router.get("/dashboard/stats", verifyToken, async (req, res) => {
 router.get("/studio/analytics", verifyToken, async (req, res) => {
   try {
     const dbUser = await User.findOne({ uid: req.user.uid });
-    if (!dbUser) {
-      return res.status(404).json({ message: "User not found" });
+    const channel = await Channel.findOne({ owner: dbUser._id });
+
+    if (!channel) {
+      return res.status(404).json({ message: "Channel not found" });
     }
 
-    const videos = await Video.find({ owner: dbUser._id });
+    const videos = await Video.find({ channel: channel._id });
 
     const totalViews = videos.reduce((sum, v) => {
       return sum + (v.views || 0);
@@ -154,19 +172,15 @@ router.get("/studio/analytics", verifyToken, async (req, res) => {
     const avgMinutes = 3;
     const watchTimeHours = ((totalViews * avgMinutes) / 60).toFixed(1);
 
-    // 🔹 FIXED SUBSCRIBER COUNT
-    const freshUser = await User.findById(dbUser._id);
-
-    const totalSubscribers =
-      freshUser.subscribers?.length || 0;
-
-    const recentSubscribers = 0; // not supported in embedded model
+    const totalSubscribers = await Subscription.countDocuments({
+      channel: channel._id,
+    });
 
     const fortyEightAgo = new Date();
     fortyEightAgo.setHours(fortyEightAgo.getHours() - 48);
 
     const recentVideos = await Video.find({
-      owner: dbUser._id,
+      channel: channel._id,
       updatedAt: { $gte: fortyEightAgo },
     });
 
@@ -174,7 +188,7 @@ router.get("/studio/analytics", verifyToken, async (req, res) => {
       return sum + (v.views || 0);
     }, 0);
 
-    const topVideos = await Video.find({ owner: dbUser._id })
+    const topVideos = await Video.find({ channel: channel._id })
       .sort({ views: -1 })
       .limit(3)
       .select("title views thumbnailUrl");
@@ -183,7 +197,7 @@ router.get("/studio/analytics", verifyToken, async (req, res) => {
       totalViews,
       watchTimeHours,
       totalSubscribers,
-      subscribersLast7Days: recentSubscribers,
+      subscribersLast7Days: 0,
       viewsLast48h,
       topVideos,
     });

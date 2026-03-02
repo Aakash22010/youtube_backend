@@ -46,7 +46,10 @@ router.get("/me", verifyToken, async (req, res) => {
     })
       .populate({
         path: "video",
-        populate: { path: "owner", select: "name avatar" },
+        populate: {
+          path: "channel",
+          select: "name avatar",
+        },
       })
       .sort({ lastWatchedAt: -1 });
 

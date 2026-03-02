@@ -9,27 +9,30 @@ const router = express.Router();
 /**
  * Get Channel Info + Videos
  */
-router.get("/:id", async (req, res) => {
+router.get("/:channelId", async (req, res) => {
   try {
-    const channel = await User.findById(req.params.id).select(
-      "name avatar bio subscribers createdAt"
-    );
+    const channel = await Channel.findById(req.params.channelId)
+      .populate("owner", "name avatar bio");
 
     if (!channel) {
       return res.status(404).json({ message: "Channel not found" });
     }
 
+    const subscriberCount = await Subscription.countDocuments({
+      channel: channel._id
+    });
+
     const videos = await Video.find({
-      owner: req.params.id,
-      visibility: "public",
+      channel: channel._id,
+      visibility: "public"
     })
       .populate("channel", "name avatar")
       .sort({ createdAt: -1 });
 
     res.json({
       channel,
-      videos,
-      subscriberCount: channel.subscribers.length,
+      subscriberCount,
+      videos
     });
 
   } catch (err) {
